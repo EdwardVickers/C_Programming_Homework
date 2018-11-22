@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <algorithm>
 
 struct link *AppendNode(struct link *head);
 void DisplayNode(struct link *head);
