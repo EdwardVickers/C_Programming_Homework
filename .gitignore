@@ -1,0 +1,9 @@
+.vscode/tasks.json
+test.exe
+.vs/ProjectSettings.json
+.vs/VSWorkspaceState.json
+.vs/C/v15/.suo
+.vs/C/v15/Browse.VC.db
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/settings.json
