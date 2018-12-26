@@ -29,14 +29,16 @@ STUDENT *CreateEmptyList(int stunum, int coursenum);
 void SumAverCourse(STUDENT *head, int stunum, int coursenum);
 void SumAverStudent(STUDENT *head, int stunum);
 STUDENT *Sort(STUDENT *head, int stunum, int (*cmp)(STUDENT *a, STUDENT *b));
-int CmpScoreAsc(struct Student *a, struct Student *b);
-int CmpSocreDes(struct Student *a, struct Student *b);
-int CmpNum(struct Student *a, struct Student *b);
-int CmpName(struct Student *a, struct Student *b);
+int CmpScoreAsc(STUDENT *a, STUDENT *b);
+int CmpSocreDes(STUDENT *a, STUDENT *b);
+int CmpNum(STUDENT *a, STUDENT *b);
+int CmpName(STUDENT *a, STUDENT *b);
 void SearchNum(STUDENT *head, int stunum, int coursenum);
 void SearchName(STUDENT *head, int stunum, int coursenum);
+int IsMatch(char *s, char *p);
 void Analysis(STUDENT *head, int stunum, int coursenum);
 void WritetoFile(STUDENT *head, int stunum, int coursenum);
+STUDENT *ClearRecord(STUDENT *head);
 STUDENT *ReadfromFile(STUDENT *head, int *stunum, int *coursenum);
 
 int main(int argc, char const *argv[])
@@ -56,18 +58,34 @@ int main(int argc, char const *argv[])
             exit(0);
         case 1:                                  //录入成绩
             printf("\t\t\tNumber of students:"); //读取学生数和课程数
-            scanf("%d", &stunum);
+            do
+            {
+                scanf("%d", &stunum);
+                if (stunum < 1)
+                {
+                    printf("\t\t\tNumber of students must be bigger than 1!\n");
+                    printf("\t\t\tInput again:");
+                }
+            } while (stunum < 1);
             printf("\t\t\tNumber of courses:");
-            scanf("%d", &coursenum);
+            do
+            {
+                scanf("%d", &coursenum);
+                if (coursenum < 1 || coursenum > MAX_COURSENUM)
+                {
+                    printf("\t\t\tNumber of courses must be between 1 and %d !\n", MAX_COURSENUM);
+                    printf("\t\t\tInput again:");
+                }
+            } while (coursenum < 1 || coursenum > MAX_COURSENUM);
             head = CreateList(stunum, coursenum);
             system("cls");
             if (head != NULL)
             {
-                printf("\t\t\tInput successfully!");
+                printf("\t\t\tInput successfully!\n");
             }
             else
             {
-                printf("\t\t\tFailed!");
+                printf("\t\t\tFailed!\n");
             }
             break;
         case 2: //计算课程总分平均分
@@ -105,11 +123,9 @@ int main(int argc, char const *argv[])
             }
             break;
         case 8: //按学号查找
-            printf("\t\t\tInput the number to search:\n");
             SearchNum(head, stunum, coursenum);
             break;
         case 9: //按姓名查找
-            printf("\t\t\tInput the name to search:\n");
             SearchName(head, stunum, coursenum);
             break;
         case 10: //成绩分析
@@ -127,7 +143,10 @@ int main(int argc, char const *argv[])
                 ListRecord(head, stunum, coursenum);
             }
             break;
-        default: //choice大于13或小于0时, 提示错误
+        case 14: //清除记录
+            head = ClearRecord(head);
+            break;
+        default: //choice大于14或小于0时, 提示错误
             printf("\t\t\t══════════════════════════════════════════════════════\n");
             printf("\t\t\tInput error! Try again.\n\a");
             printf("\t\t\t══════════════════════════════════════════════════════\n");
@@ -145,22 +164,23 @@ int DisplayMenu(void)
     system("cls");   //清屏
     printf("\n\n");
     printf("\t\t\t               Manage System for Students' Grades V6.0\n");
-    printf("\t\t\t╔════════════════════════════════════════════════════════════════════════════╗\n");
-    printf("\t\t\t║            1.  Input record                                                ║\n");
-    printf("\t\t\t║            2.  Caculate total and average score of every course            ║\n");
-    printf("\t\t\t║            3.  Caculate total and average score of every student           ║\n");
-    printf("\t\t\t║            4.  Sort in descending order by total score of every student    ║\n");
-    printf("\t\t\t║            5.  Sort in ascending order by total score of every student     ║\n");
-    printf("\t\t\t║            6.  Sort in ascending order by number                           ║\n");
-    printf("\t\t\t║            7.  Sort in dictionary order by name                            ║\n");
-    printf("\t\t\t║            8.  Search by number                                            ║\n");
-    printf("\t\t\t║            9.  Search by name                                              ║\n");
-    printf("\t\t\t║            10. Statistic analysis for every course                         ║\n");
-    printf("\t\t\t║            11. List record                                                 ║\n");
-    printf("\t\t\t║            12. Write to a file                                             ║\n");
-    printf("\t\t\t║            13. Read from a file                                            ║\n");
-    printf("\t\t\t║            0.  Exit                                                        ║\n");
-    printf("\t\t\t╚════════════════════════════════════════════════════════════════════════════╝\n");
+    printf("\t\t\t╔══════════════════════════════════════════════════════════════════════════╗\n");
+    printf("\t\t\t║          1.  Input record                                                ║\n");
+    printf("\t\t\t║          2.  Caculate total and average score of every course            ║\n");
+    printf("\t\t\t║          3.  Caculate total and average score of every student           ║\n");
+    printf("\t\t\t║          4.  Sort in descending order by total score of every student    ║\n");
+    printf("\t\t\t║          5.  Sort in ascending order by total score of every student     ║\n");
+    printf("\t\t\t║          6.  Sort in ascending order by number                           ║\n");
+    printf("\t\t\t║          7.  Sort in dictionary order by name                            ║\n");
+    printf("\t\t\t║          8.  Search by number                                            ║\n");
+    printf("\t\t\t║          9.  Search by name                                              ║\n");
+    printf("\t\t\t║          10. Statistic analysis for every course                         ║\n");
+    printf("\t\t\t║          11. List record                                                 ║\n");
+    printf("\t\t\t║          12. Write to a file                                             ║\n");
+    printf("\t\t\t║          13. Read from a file                                            ║\n");
+    printf("\t\t\t║          14. Clear record                                                ║\n");
+    printf("\t\t\t║          0.  Exit                                                        ║\n");
+    printf("\t\t\t╚══════════════════════════════════════════════════════════════════════════╝\n");
     printf("\n\n");
     printf("\t\t\t Please input your choice:");
     if (scanf("%d", &choice) != 1)
@@ -182,7 +202,7 @@ STUDENT *CreateEmptyList(int stunum, int coursenum)
         p1 = (STUDENT *)malloc(LEN);
         if (p1 == NULL) //申请不到内存则返回
         {
-            printf("No enough memory!\n");
+            printf("\t\t\tNo enough memory!\n");
             return NULL;
         }
         p1->next = NULL;
@@ -215,7 +235,7 @@ STUDENT *CreateList(int stunum, int coursenum)
         p->sum = 0;
         p->aver = 0.0;
         printf("\t\t\tInput student number: ");
-        scanf("%lld", &p->num);
+        scanf("%I64d", &p->num);
         printf("\t\t\tInput student name: ");
         scanf("%19s", p->name);                  //%19s表示输入字符串不大于19,防止溢出
         printf("\t\t\tInput scores in order: "); //按照课程顺序输入成绩
@@ -276,32 +296,33 @@ void SumAverStudent(STUDENT *head, int stunum)
     printf("\t\t\t══════════════════════════════════════════════════════\n");
     for (int i = 0; i < stunum; i++)
     {
-        printf("\t\t\tStudent %d: Name: %s, Sum: %.1f, Average: %.1f\n", i + 1, p->name, p->sum, p->aver);
+        printf("\t\t\tStudent %d: Name: %s,", i + 1, p->name);
+        printf(" Sum: %.1f, Average: %.1f\n", p->sum, p->aver);
         p = p->next;
     }
     printf("\t\t\t══════════════════════════════════════════════════════\n");
 }
 
 //功能: 比较总分(顺序)
-int CmpScoreAsc(struct Student *a, struct Student *b)
+int CmpScoreAsc(STUDENT *a, STUDENT *b)
 {
     return a->sum > b->sum;
 }
 
 //功能: 比较总分(降序)
-int CmpSocreDes(struct Student *a, struct Student *b)
+int CmpSocreDes(STUDENT *a, STUDENT *b)
 {
     return a->sum < b->sum;
 }
 
 //功能: 比较学号
-int CmpNum(struct Student *a, struct Student *b)
+int CmpNum(STUDENT *a, STUDENT *b)
 {
     return a->num > b->num;
 }
 
 //功能: 比较姓名
-int CmpName(struct Student *a, struct Student *b)
+int CmpName(STUDENT *a, STUDENT *b)
 {
     return strcmp(a->name, b->name) > 0;
 }
@@ -319,9 +340,8 @@ STUDENT *Sort(STUDENT *head, int stunum, int (*cmp)(STUDENT *a, STUDENT *b))
         return NULL;
     }
     p1 = (STUDENT *)malloc(LEN);
-    p1->next = head; //注意理解：我们增加一个节点，放在第一个节点的前面，主要是为了便于比较。因为第一个节点没有前驱，我们不能交换地址
-    head = p1;       //让head指向p1节点，排序完成后，我们再把p1节点释放掉
-
+    p1->next = head; //增加一个节点，放在第一个节点的前面
+    head = p1;       //让head指向p1节点，排序完成后，再把p1释放掉
     for (endpt = NULL; endpt != head; endpt = p)
     {
         for (p = p1 = head; p1->next->next != endpt; p1 = p1->next)
@@ -339,7 +359,7 @@ STUDENT *Sort(STUDENT *head, int stunum, int (*cmp)(STUDENT *a, STUDENT *b))
     p1 = head;         //把p1的信息去掉
     head = head->next; //让head指向排序后的第一个节点
     free(p1);          //释放p1
-    p1 = NULL;         //p1置为NULL，保证不产生“野指针”，即地址不确定的指针变量
+    p1 = NULL;         //p1置为NULL
     return head;
 }
 
@@ -356,12 +376,12 @@ void ListRecord(STUDENT *head, int stunum, int coursenum)
     printf("\t\t\tNo.\tName"); //打印每列的标题
     for (int i = 1; i <= coursenum; i++)
     {
-        printf("\tCourse %d", i);
+        printf("\tC.%d", i);
     }
     printf("\tSum\tAverage\n");
     for (int j = 0; j < stunum; j++)
     {
-        printf("\t\t\t%lld\t%s\t", p->num, p->name);
+        printf("\t\t\t%I64d\t%s\t", p->num, p->name);
         for (int i = 0; i < coursenum; i++)
         {
             printf("%.1f\t", p->score[i]);
@@ -372,24 +392,116 @@ void ListRecord(STUDENT *head, int stunum, int coursenum)
     printf("\t\t\t══════════════════════════════════════════════════════\n");
 }
 
-//功能: 通过学号查找
+//功能: 通过学号(或学号的一部分)查找
 void SearchNum(STUDENT *head, int stunum, int coursenum)
 {
+    char query[20];    //查询语句
+    char tmp[20];      //将学号转化为字符串临时存储
+    int found = 0;     //查找到标记
+    STUDENT *p = head; //指针p用于访问链表元素
     if (head == NULL)
     {
         DisplayNoRecord();
         return;
     }
+    printf("\t\t\t══════════════════════════════════════════════════════\n");
+    printf("\t\t\tInput the number to search:");
+    scanf("%20s", query); //%20s防止溢出
+    for (int i = 0; i < stunum; i++)
+    {
+        ltoa(p->num, tmp, 10);
+        if (strstr(tmp, query)) //判断query是否是tmp字串
+        {
+            found = 1; //标记已找到
+            printf("\t\t\t%I64d\t%s\t", p->num, p->name);
+            for (int j = 0; j < coursenum; j++)
+            {
+                printf("%.1f\t", p->score[j]);
+            }
+            printf("%.1f\t%.1f\n", p->sum, p->aver);
+        }
+        p = p->next;
+    }
+    if (!found)
+    {
+        printf("\t\t\tNot found!\n");
+    }
+    printf("\t\t\t══════════════════════════════════════════════════════\n");
 }
 
 //功能: 通过姓名查找
 void SearchName(STUDENT *head, int stunum, int coursenum)
 {
+    char query[20];    //查询语句
+    int found = 0;     //查找到标记
+    STUDENT *p = head; //指针p用于访问链表元素
     if (head == NULL)
     {
         DisplayNoRecord();
         return;
     }
+    printf("\t\t\t══════════════════════════════════════════════════════\n");
+    printf("\t\t\t\"?\" for 1 character, \"*\" for 0-N character(s):\n");
+    printf("\t\t\tInput the name to search:");
+    scanf("%20s", query); //%20s防止溢出
+    for (int i = 0; i < stunum; i++)
+    {
+        if (IsMatch(p->name, query)) //判断query是否是name字串
+        {
+            found = 1; //标记已找到
+            printf("\t\t\t%I64d\t%s\t", p->num, p->name);
+            for (int j = 0; j < coursenum; j++)
+            {
+                printf("%.1f\t", p->score[j]);
+            }
+            printf("%.1f\t%.1f\n", p->sum, p->aver);
+        }
+        p = p->next;
+    }
+    if (!found)
+    {
+        printf("\t\t\tNot found!\n");
+    }
+    printf("\t\t\t══════════════════════════════════════════════════════\n");
+}
+
+//功能: 通过通配符进行模糊匹配
+//其中 "?" 表示1个字符, "*" 表示任意字符串(包括空字符串)
+//返回值: 1表示匹配, 0表示不匹配
+//思想: 动态规划, 其中状态转移方程是:
+//p 当前字符是*:
+//      dp[i+1][j+1] = dp[i][j+1] || dp[i+1][j]
+//p 当前字符不是*:
+//      dp[i+1][j+1] = dp[i][j] && s[i] == p[j]
+int IsMatch(char *s, char *p)
+{
+    int slen = strlen(s), plen = strlen(p);
+    //辅助数组dp，dp[i][j]表示s(0~i-1)与p(0~j-1)子串是否完全匹配
+    int dp[20][20];
+    dp[0][0] = 1; //s为空字符串 && p为空字符串
+    for (int i = 1; i <= slen; i++)
+    {
+        dp[i][0] = 0; //s不为空，p为空字符串
+    }
+    for (int j = 1; j <= plen; j++)
+    {
+        dp[0][j] = (p[j - 1] == '*' && dp[0][j - 1]); //s为空字符串，p不为空
+    }
+    //需s和p完全匹配，外层循环对p进行遍历
+    for (int j = 1; j <= plen; j++)
+    {
+        for (int i = 1; i <= slen; i++)
+        {
+            if (p[j - 1] != '*')
+                //若p[j-1]不为*，需判断dp[i-1][j-1])，并且s[i-1]与p[j-1]匹配
+                dp[i][j] = dp[i - 1][j - 1] && (s[i - 1] == p[j - 1] || '?' == p[j - 1]);
+            else
+                //若p[j-1]为*,需判断s(0~i-2)与p(0~j-1)是否匹配(当前*匹配s[i-1]及之前部分字符)
+                //或者判断s(0~i-1)与p(0~j-2)是否匹配(当前*匹配空字符串)
+                dp[i][j] = dp[i - 1][j] || dp[i][j - 1];
+        }
+    }
+    return dp[slen][plen];
 }
 
 //功能: 对每门课程进行成绩分析
@@ -460,7 +572,7 @@ void WritetoFile(STUDENT *head, int stunum, int coursenum)
     fprintf(fp, "%d\t%d\n", stunum, coursenum);
     for (int i = 0; i < stunum; i++)
     {
-        fprintf(fp, "%12lld%19s", p->num, p->name);
+        fprintf(fp, "%12I64d%19s", p->num, p->name);
         for (int j = 0; j < coursenum; j++)
         {
             fprintf(fp, "%12.0f", p->score[j]);
@@ -493,7 +605,7 @@ STUDENT *ReadfromFile(STUDENT *head, int *stunum, int *coursenum)
     p = head;
     for (int i = 0; i < *stunum; i++)
     {
-        fscanf(fp, "%12lld%19s", &p->num, &p->name);
+        fscanf(fp, "%12I64d%19s", &p->num, p->name);
         for (int j = 0; j < *coursenum; j++)
         {
             fscanf(fp, "%12f", &p->score[j]);
@@ -504,4 +616,37 @@ STUDENT *ReadfromFile(STUDENT *head, int *stunum, int *coursenum)
     printf("\t\t\tRead Successfully!\n");
     fclose(fp);
     return head;
+}
+
+//功能: 清空链表
+//返回值: 指向STUDENT的指针, 为NULL则成功
+STUDENT *ClearRecord(STUDENT *head)
+{
+    if (head == NULL)
+    {
+        DisplayNoRecord();
+        return head;
+    }
+    STUDENT *p = head, *pr = NULL;
+    char choice = '0';
+    while (getchar() != '\n') //清除缓冲区
+        ;
+    printf("\t\t\tAre you sure? (Y/N)");
+    scanf("%c", &choice);
+    if (choice == 'y' || choice == 'Y')
+    {
+        while (p != NULL)
+        {
+            pr = p;
+            p = p->next;
+            free(pr);
+        }
+        printf("\t\t\tCleared successfully!\n");
+        return NULL;
+    }
+    else
+    {
+        printf("\t\t\tCanceled!\n");
+        return head;
+    }
 }
