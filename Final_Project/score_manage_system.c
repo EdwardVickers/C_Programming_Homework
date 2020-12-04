@@ -1,6 +1,5 @@
 //Name: 学生成绩管理系统
 //Date: 2018-12-21
-//Author: 1180300902代昆
 
 #include <stdio.h>
 #include <stdlib.h>
